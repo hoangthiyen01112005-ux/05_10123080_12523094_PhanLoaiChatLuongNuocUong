@@ -1,0 +1,6 @@
+services:
+  backend:
+    build: ./app/backend
+
+  ai-service:
+    build: ./ai-models/service
