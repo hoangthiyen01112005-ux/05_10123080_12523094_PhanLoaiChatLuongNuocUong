@@ -141,3 +141,18 @@ def test_system_error_handler():
     assert data["request_id"] == "system-error-test-123"
 
     assert response.headers["X-Request-ID"] == "system-error-test-123"
+
+def test_cors_preflight():
+    response = client.options(
+        "/health",
+        headers={
+            "Origin": "http://localhost:3000",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+
+    assert response.status_code == 200
+    assert "access-control-allow-origin" in response.headers
+    assert "access-control-allow-methods" in response.headers
+
+
