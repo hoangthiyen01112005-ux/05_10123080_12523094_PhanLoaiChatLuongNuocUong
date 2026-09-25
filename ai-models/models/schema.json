@@ -1,0 +1,57 @@
+{
+    "features": [
+        {
+            "name": "ph",
+            "type": "float64",
+            "required": true
+        },
+        {
+            "name": "Hardness",
+            "type": "float64",
+            "required": true
+        },
+        {
+            "name": "Solids",
+            "type": "float64",
+            "required": true
+        },
+        {
+            "name": "Chloramines",
+            "type": "float64",
+            "required": true
+        },
+        {
+            "name": "Sulfate",
+            "type": "float64",
+            "required": true
+        },
+        {
+            "name": "Conductivity",
+            "type": "float64",
+            "required": true
+        },
+        {
+            "name": "Organic_carbon",
+            "type": "float64",
+            "required": true
+        },
+        {
+            "name": "Trihalomethanes",
+            "type": "float64",
+            "required": true
+        },
+        {
+            "name": "Turbidity",
+            "type": "float64",
+            "required": true
+        }
+    ],
+    "target": {
+        "name": "Potability",
+        "type": "int64",
+        "classes": [
+            0,
+            1
+        ]
+    }
+}
