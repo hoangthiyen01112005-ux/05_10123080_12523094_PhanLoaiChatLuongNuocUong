@@ -1,0 +1,84 @@
+{
+    "target": {
+        "name": "Potability",
+        "type": "integer",
+        "label_mapping": {
+            "0": "Not Potable",
+            "1": "Potable"
+        }
+    },
+    "features": [
+        {
+            "name": "ph",
+            "type": "float",
+            "required": true,
+            "min": 0.0,
+            "max": 13.999999999999998,
+            "range_source": "dataset_min_max"
+        },
+        {
+            "name": "Hardness",
+            "type": "float",
+            "required": true,
+            "min": 47.432,
+            "max": 323.124,
+            "range_source": "dataset_min_max"
+        },
+        {
+            "name": "Solids",
+            "type": "float",
+            "required": true,
+            "min": 320.942611274359,
+            "max": 61227.19600771213,
+            "range_source": "dataset_min_max"
+        },
+        {
+            "name": "Chloramines",
+            "type": "float",
+            "required": true,
+            "min": 0.3520000000000003,
+            "max": 13.127000000000002,
+            "range_source": "dataset_min_max"
+        },
+        {
+            "name": "Sulfate",
+            "type": "float",
+            "required": true,
+            "min": 129.00000000000003,
+            "max": 481.0306423059972,
+            "range_source": "dataset_min_max"
+        },
+        {
+            "name": "Conductivity",
+            "type": "float",
+            "required": true,
+            "min": 181.483753985146,
+            "max": 753.3426195583046,
+            "range_source": "dataset_min_max"
+        },
+        {
+            "name": "Organic_carbon",
+            "type": "float",
+            "required": true,
+            "min": 2.1999999999999886,
+            "max": 28.30000000000001,
+            "range_source": "dataset_min_max"
+        },
+        {
+            "name": "Trihalomethanes",
+            "type": "float",
+            "required": true,
+            "min": 0.7379999999999995,
+            "max": 124.0,
+            "range_source": "dataset_min_max"
+        },
+        {
+            "name": "Turbidity",
+            "type": "float",
+            "required": true,
+            "min": 1.45,
+            "max": 6.739,
+            "range_source": "dataset_min_max"
+        }
+    ]
+}
