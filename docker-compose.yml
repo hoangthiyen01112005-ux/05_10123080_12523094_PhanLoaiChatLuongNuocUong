@@ -1,6 +1,25 @@
 services:
   backend:
     build: ./app/backend
+    ports:
+      - "8001:8001"
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017
+      MONGODB_DATABASE: water_quality
+      AI_SERVICE_URL: http://ai-service:8000
+    depends_on:
+      - mongodb
 
   ai-service:
     build: ./ai-models/service
+
+  mongodb:
+    image: mongo:8
+    container_name: water-quality-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
