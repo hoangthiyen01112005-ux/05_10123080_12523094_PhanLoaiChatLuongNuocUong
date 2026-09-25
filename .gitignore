@@ -33,3 +33,5 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+ai-models/data/water_potability.csv
