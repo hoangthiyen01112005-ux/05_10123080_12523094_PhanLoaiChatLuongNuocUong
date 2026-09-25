@@ -1,13 +1,14 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from schemas import WaterQualityRequest
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+
+import json
 import logging
 import time
 import uuid
+from pathlib import Path
 
 import uvicorn
 
@@ -18,6 +19,14 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger("ai-service")
+
+
+# Đường dẫn tới metadata.json
+METADATA_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "models"
+    / "metadata.json"
+)
 
 
 app = FastAPI(
@@ -106,8 +115,32 @@ def health(request: Request):
     }
 
 
+@app.get("/model-info")
+def model_info(request: Request):
+    if not METADATA_PATH.exists():
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "message": "Model metadata is not available",
+                "request_id": request.state.request_id,
+            },
+        )
+
+    with open(METADATA_PATH, "r", encoding="utf-8") as file:
+        metadata = json.load(file)
+
+    return {
+        "status": "ok",
+        "request_id": request.state.request_id,
+        "model": metadata,
+    }
+
+
 @app.post("/validate")
-def validate_input(data: WaterQualityRequest, request: Request):
+def validate_input(
+    data: WaterQualityRequest,
+    request: Request,
+):
     return {
         "status": "valid",
         "request_id": request.state.request_id,

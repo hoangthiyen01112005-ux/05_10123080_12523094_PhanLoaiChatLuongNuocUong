@@ -96,3 +96,13 @@ def test_validate_missing_field():
     assert data["status"] == "error"
     assert data["message"] == "Invalid input data"
     assert "request_id" in data
+
+def test_model_info_unavailable():
+    response = client.get("/model-info")
+
+    assert response.status_code == 503
+
+    data = response.json()
+
+    assert data["detail"]["message"] == "Model metadata is not available"
+    assert "request_id" in data["detail"]
