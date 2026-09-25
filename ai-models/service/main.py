@@ -96,6 +96,36 @@ async def validation_exception_handler(
     )
 
 
+@app.exception_handler(Exception)
+async def system_exception_handler(
+    request: Request,
+    exc: Exception,
+):
+    request_id = getattr(
+        request.state,
+        "request_id",
+        str(uuid.uuid4()),
+    )
+
+    logger.exception(
+        "request_id=%s system_error path=%s",
+        request_id,
+        request.url.path,
+    )
+
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": "error",
+            "message": "Internal server error",
+            "request_id": request_id,
+        },
+        headers={
+            "X-Request-ID": request_id,
+        },
+    )
+
+
 @app.get("/")
 def root(request: Request):
     return {

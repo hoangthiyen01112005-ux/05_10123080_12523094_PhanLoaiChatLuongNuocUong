@@ -106,3 +106,31 @@ def test_model_info_unavailable():
 
     assert data["detail"]["message"] == "Model metadata is not available"
     assert "request_id" in data["detail"]
+
+@app.get("/test-system-error")
+def trigger_system_error():
+    raise RuntimeError("Test system error")
+
+
+def test_system_error_handler():
+    test_client = TestClient(
+        app,
+        raise_server_exceptions=False,
+    )
+
+    response = test_client.get(
+        "/test-system-error",
+        headers={
+            "X-Request-ID": "test-error-500",
+        },
+    )
+
+    assert response.status_code == 500
+
+    data = response.json()
+
+    assert data["status"] == "error"
+    assert data["message"] == "Internal server error"
+    assert data["request_id"] == "test-error-500"
+
+    assert response.headers["X-Request-ID"] == "test-error-500"
