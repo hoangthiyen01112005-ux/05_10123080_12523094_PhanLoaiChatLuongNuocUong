@@ -4,9 +4,9 @@ services:
     ports:
       - "8001:8001"
     environment:
-      MONGODB_URI: mongodb://mongodb:27017
-      MONGODB_DATABASE: water_quality
-      AI_SERVICE_URL: http://ai-service:8000
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongodb:27017}
+      MONGODB_DATABASE: ${MONGODB_DATABASE:-water_quality}
+      AI_SERVICE_URL: ${AI_SERVICE_URL:-http://ai-service:8000}
     depends_on:
       - mongodb
 
