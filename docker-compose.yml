@@ -13,6 +13,13 @@ services:
   ai-service:
     build: ./ai-models/service
 
+  frontend:
+    build: ./app/frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
   mongodb:
     image: mongo:8
     container_name: water-quality-mongodb
