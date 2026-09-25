@@ -118,3 +118,26 @@ def test_database_error(monkeypatch):
     assert data["request_id"] == "db-error-test-123"
 
     assert response.headers["X-Request-ID"] == "db-error-test-123"
+
+@main.app.get("/test-system-error")
+def trigger_system_error():
+    raise RuntimeError("Test system error")
+
+
+def test_system_error_handler():
+    response = client.get(
+        "/test-system-error",
+        headers={
+            "X-Request-ID": "system-error-test-123",
+        },
+    )
+
+    assert response.status_code == 500
+
+    data = response.json()
+
+    assert data["status"] == "error"
+    assert data["message"] == "Internal server error"
+    assert data["request_id"] == "system-error-test-123"
+
+    assert response.headers["X-Request-ID"] == "system-error-test-123"
