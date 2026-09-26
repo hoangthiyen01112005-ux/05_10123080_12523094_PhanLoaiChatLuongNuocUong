@@ -64,6 +64,22 @@
             color: #64748b;
             margin-top: 4px;
         }
+        /* Style cho 2 Nút chọn Mô hình */
+        .model-btn-group .btn {
+            border-radius: 8px;
+            font-weight: 600;
+            padding: 10px 18px;
+            border: 1px solid #cbd5e1;
+            background-color: #f8fafc;
+            color: #475569;
+            transition: all 0.2s ease;
+        }
+        .model-btn-group .btn-check:checked + .btn-outline-primary {
+            background-color: #2563eb;
+            color: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
         .btn-reset {
             background-color: #e0e7ff;
             color: #3730a3;
@@ -126,6 +142,15 @@
             color: #1d4ed8;
             text-decoration: underline;
         }
+        .badge-recommended {
+            background-color: #dcfce7;
+            color: #15803d;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
         .footer-note {
             font-size: 0.85rem;
             color: #64748b;
@@ -143,9 +168,28 @@
 
         <!-- KHUNG NHẬP LIỆU CHÍNH -->
         <div class="main-card">
-            <h5 class="section-title">Chỉ số hóa lý của nước</h5>
             
             <form id="waterForm">
+                <!-- 2 NÚT CHỌN MÔ HÌNH DỰ ĐOÁN -->
+                <div class="mb-4">
+                    <label class="form-label-custom d-block mb-2">Chọn Mô hình AI thực hiện dự đoán:</label>
+                    <div class="btn-group model-btn-group" role="group" aria-label="Model Selection">
+                        <input type="radio" class="btn-check" name="model_choice" id="model_rf" value="rf" checked>
+                        <label class="btn btn-outline-primary" for="model_rf">
+                            🌲 Random Forest
+                        </label>
+
+                        <input type="radio" class="btn-check" name="model_choice" id="model_knn" value="knn">
+                        <label class="btn btn-outline-primary" for="model_knn">
+                            🔍 K-Nearest Neighbors (KNN)
+                        </label>
+                    </div>
+                </div>
+
+                <hr class="my-4" style="border-color: #e2e8f0;">
+
+                <h5 class="section-title">Chỉ số hóa lý của nước</h5>
+
                 <!-- HÀNG 1: 3 CHỈ SỐ -->
                 <div class="row g-4 mb-3">
                     <div class="col-md-4">
@@ -230,17 +274,17 @@
                 <!-- NÚT BẤM -->
                 <div class="d-flex gap-2 align-items-center">
                     <button type="button" class="btn btn-reset" onclick="resetForm()">Đặt lại giá trị mẫu</button>
-                    <button type="submit" class="btn btn-submit">Kiểm tra kết quả dự đoán</button>
+                    <button type="submit" class="btn btn-submit" id="btnSubmit">Kiểm tra kết quả dự đoán</button>
                 </div>
             </form>
 
             <!-- KẾT QUẢ DỰ ĐOÁN NẰM NGAY BÊN DƯỚI -->
             <div id="resultBox" class="result-box">
-                <div class="result-title">Kết quả phân loại</div>
+                <div class="result-title">Kết quả phân loại (<span id="modelUsedText">---</span>)</div>
                 <div id="resultText" class="result-value">---</div>
                 <div id="probabilityText" class="text-muted mt-1 fs-6">Độ tin cậy: --%</div>
 
-                <!-- NÚT XEM CÁCH TÍNH (COLLAPSE) -->
+                <!-- NÚT XEM CÁCH TÍNH & SO SÁNH -->
                 <div>
                     <button class="details-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#calculationDetails" aria-expanded="false">
                         <span>▶ Xem cách tính & Bảng so sánh ngưỡng</span>
@@ -251,7 +295,7 @@
                 <div class="collapse mt-3" id="calculationDetails">
                     <div class="card card-body bg-white border-0 shadow-sm p-3">
                         <p class="text-secondary small mb-3">
-                            Mô hình phân loại dựa trên phép tính xác suất tổng hợp các cây quyết định (Random Forest). Các chỉ số đầu vào được chuẩn hóa (StandardScaler) và so sánh với tiêu chuẩn an toàn:
+                            Mô hình phân loại dựa trên dữ liệu chuẩn hóa (StandardScaler) và tính toán xác suất. Các chỉ số đầu vào được so sánh với ngưỡng khuyến nghị:
                         </p>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered align-middle small mb-0">
@@ -263,51 +307,15 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Độ pH</td>
-                                        <td class="text-center font-monospace" id="val-ph">7.0</td>
-                                        <td class="text-center">6.5 – 8.5</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Độ cứng (Hardness)</td>
-                                        <td class="text-center font-monospace" id="val-Hardness">204.89 mg/L</td>
-                                        <td class="text-center">&lt; 300 mg/L</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tổng chất rắn (Solids)</td>
-                                        <td class="text-center font-monospace" id="val-Solids">20791.32 ppm</td>
-                                        <td class="text-center">&lt; 500 ppm (Lý tưởng)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Chloramines</td>
-                                        <td class="text-center font-monospace" id="val-Chloramines">7.30 ppm</td>
-                                        <td class="text-center">&lt; 4.0 ppm</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Sulfate</td>
-                                        <td class="text-center font-monospace" id="val-Sulfate">368.51 mg/L</td>
-                                        <td class="text-center">&lt; 250 mg/L</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Độ dẫn điện (Conductivity)</td>
-                                        <td class="text-center font-monospace" id="val-Conductivity">564.30 μS/cm</td>
-                                        <td class="text-center">&lt; 400 μS/cm</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Carbon hữu cơ (Organic carbon)</td>
-                                        <td class="text-center font-monospace" id="val-Organic_carbon">10.37 ppm</td>
-                                        <td class="text-center">&lt; 10 ppm</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Trihalomethanes</td>
-                                        <td class="text-center font-monospace" id="val-Trihalomethanes">86.99 μg/L</td>
-                                        <td class="text-center">&lt; 80 μg/L</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Độ đục (Turbidity)</td>
-                                        <td class="text-center font-monospace" id="val-Turbidity">2.96 NTU</td>
-                                        <td class="text-center">&lt; 5.0 NTU</td>
-                                    </tr>
+                                    <tr><td>Độ pH</td><td class="text-center font-monospace" id="val-ph">7.0</td><td class="text-center">6.5 – 8.5</td></tr>
+                                    <tr><td>Độ cứng (Hardness)</td><td class="text-center font-monospace" id="val-Hardness">204.89 mg/L</td><td class="text-center">&lt; 300 mg/L</td></tr>
+                                    <tr><td>Tổng chất rắn (Solids)</td><td class="text-center font-monospace" id="val-Solids">20791.32 ppm</td><td class="text-center">&lt; 500 ppm (Lý tưởng)</td></tr>
+                                    <tr><td>Chloramines</td><td class="text-center font-monospace" id="val-Chloramines">7.30 ppm</td><td class="text-center">&lt; 4.0 ppm</td></tr>
+                                    <tr><td>Sulfate</td><td class="text-center font-monospace" id="val-Sulfate">368.51 mg/L</td><td class="text-center">&lt; 250 mg/L</td></tr>
+                                    <tr><td>Độ dẫn điện (Conductivity)</td><td class="text-center font-monospace" id="val-Conductivity">564.30 μS/cm</td><td class="text-center">&lt; 400 μS/cm</td></tr>
+                                    <tr><td>Carbon hữu cơ (Organic carbon)</td><td class="text-center font-monospace" id="val-Organic_carbon">10.37 ppm</td><td class="text-center">&lt; 10 ppm</td></tr>
+                                    <tr><td>Trihalomethanes</td><td class="text-center font-monospace" id="val-Trihalomethanes">86.99 μg/L</td><td class="text-center">&lt; 80 μg/L</td></tr>
+                                    <tr><td>Độ đục (Turbidity)</td><td class="text-center font-monospace" id="val-Turbidity">2.96 NTU</td><td class="text-center">&lt; 5.0 NTU</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -317,9 +325,58 @@
             </div>
         </div>
 
+        <!-- KHUNG SO SÁNH CÁC MÔ HÌNH AI -->
+        <div class="main-card">
+            <h5 class="section-title mb-1">📊 Bảng So sánh Hiệu năng giữa Các Mô hình</h5>
+            <p class="text-muted small mb-3">Kết quả đánh giá trên tập dữ liệu Test (656 mẫu kiểm thử độc lập):</p>
+            
+            <div class="table-responsive">
+                <table class="table table-hover align-middle border text-center small mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-start">Mô hình AI</th>
+                            <th>Accuracy (Độ chính xác)</th>
+                            <th>Precision (Lớp 1)</th>
+                            <th>Recall (Lớp 1)</th>
+                            <th>F1-Score</th>
+                            <th>AUC (ROC)</th>
+                            <th>Đánh giá</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-success fw-medium">
+                            <td class="text-start">
+                                🌲 <strong>Random Forest Classifier</strong>
+                                <span class="badge-recommended">Tối ưu nhất</span>
+                            </td>
+                            <td><strong>65.2%</strong></td>
+                            <td><strong>62.4%</strong></td>
+                            <td><strong>29.1%</strong></td>
+                            <td><strong>0.40</strong></td>
+                            <td><strong>0.67</strong></td>
+                            <td><span class="badge bg-success">Tốt nhất</span></td>
+                        </tr>
+                        <tr>
+                            <td class="text-start">🔍 K-Nearest Neighbors (KNN)</td>
+                            <td>61.0%</td>
+                            <td>52.1%</td>
+                            <td>25.3%</td>
+                            <td>0.34</td>
+                            <td>0.58</td>
+                            <td><span class="badge bg-secondary">Trung bình</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="alert alert-light border mt-3 mb-0 text-muted small">
+                💡 <strong>Nhận xét chuyên môn:</strong> Mô hình <strong>Random Forest</strong> đạt các chỉ số vượt trội hơn KNN ở mọi tiêu chí, đặc biệt là diện tích dưới đường cong ROC (AUC = 0.67 so với 0.58). Do đó, Random Forest được lựa chọn làm mô hình dự đoán chính cho hệ thống.
+            </div>
+        </div>
+
         <!-- FOOTER CHÚ THÍCH MÔ HÌNH -->
         <div class="footer-note">
-            <p class="mb-1">Mô hình: Random Forest Classifier (scikit-learn) · Dữ liệu: Kaggle Water Potability Dataset (3,276 mẫu).</p>
+            <p class="mb-1">Mô hình: Machine Learning Classifier (scikit-learn) · Dữ liệu: Kaggle Water Potability Dataset (3,276 mẫu).</p>
             <p class="mb-0">Chỉ mang tính minh họa học thuật, không dùng để kiểm định chất lượng y tế thực tế.</p>
         </div>
 
@@ -327,6 +384,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        const BACKEND_API_URL = "/api/predict";
+
         function resetForm() {
             document.getElementById('ph').value = "7.0";
             document.getElementById('Hardness').value = "204.89";
@@ -337,13 +396,14 @@
             document.getElementById('Organic_carbon').value = "10.37";
             document.getElementById('Trihalomethanes').value = "86.99";
             document.getElementById('Turbidity').value = "2.96";
+            document.getElementById('model_rf').checked = true;
             document.getElementById('resultBox').style.display = "none";
         }
 
-        document.getElementById('waterForm').addEventListener('submit', function(e) {
+        document.getElementById('waterForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Lấy giá trị từ form cập nhật vào bảng chi tiết
+            // Cập nhật bảng thông số chi tiết
             document.getElementById('val-ph').innerText = document.getElementById('ph').value;
             document.getElementById('val-Hardness').innerText = document.getElementById('Hardness').value + " mg/L";
             document.getElementById('val-Solids').innerText = document.getElementById('Solids').value + " ppm";
@@ -354,15 +414,67 @@
             document.getElementById('val-Trihalomethanes').innerText = document.getElementById('Trihalomethanes').value + " μg/L";
             document.getElementById('val-Turbidity').innerText = document.getElementById('Turbidity').value + " NTU";
 
-            // Hiển thị hộp kết quả
-            const resultBox = document.getElementById('resultBox');
-            const resultText = document.getElementById('resultText');
-            const probabilityText = document.getElementById('probabilityText');
+            // Lấy mô hình đang được chọn từ 2 nút Radio
+            const selectedModel = document.querySelector('input[name="model_choice"]:checked').value;
 
-            resultBox.style.display = "block";
-            resultText.innerText = "Uống được (Potable)";
-            resultText.style.color = "#16a34a";
-            probabilityText.innerText = "Độ tin cậy mô hình: 86.5%";
+            const payload = {
+                ph: parseFloat(document.getElementById('ph').value),
+                Hardness: parseFloat(document.getElementById('Hardness').value),
+                Solids: parseFloat(document.getElementById('Solids').value),
+                Chloramines: parseFloat(document.getElementById('Chloramines').value),
+                Sulfate: parseFloat(document.getElementById('Sulfate').value),
+                Conductivity: parseFloat(document.getElementById('Conductivity').value),
+                Organic_carbon: parseFloat(document.getElementById('Organic_carbon').value),
+                Trihalomethanes: parseFloat(document.getElementById('Trihalomethanes').value),
+                Turbidity: parseFloat(document.getElementById('Turbidity').value),
+                model_type: selectedModel
+            };
+
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = "Đang xử lý...";
+
+            try {
+                const response = await fetch(BACKEND_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error("Không thể kết nối đến máy chủ.");
+                }
+
+                const data = await response.json();
+
+                const resultBox = document.getElementById('resultBox');
+                const resultText = document.getElementById('resultText');
+                const probabilityText = document.getElementById('probabilityText');
+                const modelUsedText = document.getElementById('modelUsedText');
+
+                resultBox.style.display = "block";
+                modelUsedText.innerText = data.model_used || (selectedModel === 'rf' ? 'Random Forest' : 'KNN');
+
+                if (data.prediction === 1) {
+                    resultText.innerText = "Uống được (Potable)";
+                    resultText.style.color = "#16a34a";
+                } else {
+                    resultText.innerText = "Không nên uống (Non-Potable)";
+                    resultText.style.color = "#dc2626";
+                }
+
+                if (data.probability !== null && data.probability !== undefined) {
+                    probabilityText.innerText = `Độ tin cậy mô hình: ${(data.probability * 100).toFixed(1)}%`;
+                } else {
+                    probabilityText.innerText = "Độ tin cậy: Không khả dụng";
+                }
+
+            } catch (error) {
+                alert("Lỗi khi kết nối API: " + error.message);
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = "Kiểm tra kết quả dự đoán";
+            }
         });
     </script>
 </body>
