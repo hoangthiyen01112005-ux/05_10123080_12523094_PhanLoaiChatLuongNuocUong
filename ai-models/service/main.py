@@ -282,6 +282,14 @@ def predict(
             probabilities[prediction]
         )
 
+        model_version = None
+
+    if METADATA_PATH.exists():
+        with open(METADATA_PATH, "r", encoding="utf-8") as file:
+            metadata = json.load(file)
+
+        model_version = metadata.get("version")
+
     return {
         "prediction": prediction,
         "label": (
@@ -296,6 +304,7 @@ def predict(
         ),
         "model_type": selected_model,
         "model_used": MODEL_NAMES[selected_model],
+        "model_version": model_version,
         "request_id": request.state.request_id,
     }
 

@@ -99,15 +99,33 @@ def test_validate_missing_field():
     assert data["message"] == "Invalid input data"
     assert "request_id" in data
 
-def test_model_info_unavailable():
-    response = client.get("/model-info")
+def test_model_info_available():
+    response = client.get(
+        "/model-info",
+        headers={
+            "X-Request-ID": "model-info-test-123",
+        },
+    )
 
-    assert response.status_code == 503
+    assert response.status_code == 200
 
     data = response.json()
 
-    assert data["detail"]["message"] == "Model metadata is not available"
-    assert "request_id" in data["detail"]
+    assert data["status"] == "ok"
+    assert data["request_id"] == "model-info-test-123"
+
+    assert data["model"]["version"] == "1.0.0"
+
+    assert data["model"]["final_model"]["id"] == "rf"
+    assert data["model"]["final_model"]["name"] == "Random Forest"
+    assert data["model"]["final_model"]["artifact"] == "rf_model.joblib"
+
+    assert "lr" in data["model"]["models"]
+    assert "svm" in data["model"]["models"]
+    assert "rf" in data["model"]["models"]
+    assert "knn" in data["model"]["models"]
+
+
 
 @app.get("/test-system-error")
 def trigger_system_error():
