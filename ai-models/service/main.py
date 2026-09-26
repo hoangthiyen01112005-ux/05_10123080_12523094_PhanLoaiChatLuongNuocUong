@@ -9,7 +9,10 @@ import logging
 import time
 import uuid
 from pathlib import Path
-
+import joblib
+import pandas as pd
+from pydantic import Field
+from typing import Optional
 import uvicorn
 
 
@@ -20,7 +23,50 @@ logging.basicConfig(
 
 logger = logging.getLogger("ai-service")
 
+class PredictionRequest(WaterQualityRequest):
+    model_type: Optional[str] = Field(
+        default="rf",
+        description="Model: lr, svm, rf hoặc knn",
+    )
 
+MODELS_DIR = Path(__file__).resolve().parents[1] / "models"
+
+MODEL_PATHS = {
+    "lr": MODELS_DIR / "logistic_regression.joblib",
+    "svm": MODELS_DIR / "svm.joblib",
+    "rf": MODELS_DIR / "rf_model.joblib",
+    "knn": MODELS_DIR / "knn_model.joblib",
+}
+
+MODEL_NAMES = {
+    "lr": "Logistic Regression",
+    "svm": "Support Vector Machine",
+    "rf": "Random Forest",
+    "knn": "K-Nearest Neighbors",
+}
+
+models = {}
+
+
+def load_models():
+    models.clear()
+
+    for model_key, model_path in MODEL_PATHS.items():
+        if model_path.exists():
+            models[model_key] = joblib.load(model_path)
+            logger.info(
+                "Loaded model=%s path=%s",
+                model_key,
+                model_path,
+            )
+        else:
+            logger.warning(
+                "Model file not found: %s",
+                model_path,
+            )
+
+
+load_models()
 # Đường dẫn tới metadata.json
 METADATA_PATH = (
     Path(__file__).resolve().parents[1]
@@ -140,7 +186,9 @@ def health(request: Request):
     return {
         "status": "ok",
         "service": "ai-service",
-        "model_loaded": False,
+        "model_loaded": len(models) > 0,
+        "available_models": list(models.keys()),
+        "model_count": len(models),
         "request_id": request.state.request_id,
     }
 
@@ -177,6 +225,79 @@ def validate_input(
         "data": data.model_dump(),
     }
 
+@app.post("/predict")
+def predict(
+    data: PredictionRequest,
+    request: Request,
+):
+    selected_model = (
+        data.model_type.lower()
+        if data.model_type
+        else "rf"
+    )
+
+    if selected_model not in MODEL_PATHS:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "message": (
+                    "model_type không hợp lệ. "
+                    "Chỉ chấp nhận: lr, svm, rf, knn"
+                ),
+                "request_id": request.state.request_id,
+            },
+        )
+
+    if selected_model not in models:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "message": (
+                    f"Model '{selected_model}' "
+                    "chưa được load"
+                ),
+                "request_id": request.state.request_id,
+            },
+        )
+
+    model = models[selected_model]
+
+    input_dict = data.model_dump()
+    input_dict.pop("model_type", None)
+
+    input_data = pd.DataFrame([input_dict])
+
+    prediction = int(
+        model.predict(input_data)[0]
+    )
+
+    probability = None
+
+    if hasattr(model, "predict_proba"):
+        probabilities = model.predict_proba(
+            input_data
+        )[0]
+
+        probability = float(
+            probabilities[prediction]
+        )
+
+    return {
+        "prediction": prediction,
+        "label": (
+            "Uống được (Potable)"
+            if prediction == 1
+            else "Không nên uống (Non-Potable)"
+        ),
+        "probability": (
+            round(probability, 4)
+            if probability is not None
+            else None
+        ),
+        "model_type": selected_model,
+        "model_used": MODEL_NAMES[selected_model],
+        "request_id": request.state.request_id,
+    }
 
 if __name__ == "__main__":
     uvicorn.run(

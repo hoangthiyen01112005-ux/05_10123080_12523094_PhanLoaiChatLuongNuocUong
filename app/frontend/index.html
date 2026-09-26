@@ -180,11 +180,12 @@
       <!-- KHUNG NHẬP LIỆU CHÍNH -->
       <div class="main-card">
         <form id="waterForm">
-          <!-- 2 NÚT CHỌN MÔ HÌNH DỰ ĐOÁN -->
+          <!-- 4 NÚT CHỌN MÔ HÌNH DỰ ĐOÁN -->
           <div class="mb-4">
-            <label class="form-label-custom d-block mb-2"
-              >Chọn Mô hình AI thực hiện dự đoán:</label
-            >
+            <label class="form-label-custom d-block mb-2">
+              Chọn Mô hình AI thực hiện dự đoán:
+            </label>
+
             <div
               class="btn-group model-btn-group"
               role="group"
@@ -194,12 +195,34 @@
                 type="radio"
                 class="btn-check"
                 name="model_choice"
+                id="model_lr"
+                value="lr"
+              />
+              <label class="btn btn-outline-primary" for="model_lr">
+                Logistic Regression
+              </label>
+
+              <input
+                type="radio"
+                class="btn-check"
+                name="model_choice"
+                id="model_svm"
+                value="svm"
+              />
+              <label class="btn btn-outline-primary" for="model_svm">
+                SVM
+              </label>
+
+              <input
+                type="radio"
+                class="btn-check"
+                name="model_choice"
                 id="model_rf"
                 value="rf"
                 checked
               />
               <label class="btn btn-outline-primary" for="model_rf">
-                🌲 Random Forest
+                Random Forest
               </label>
 
               <input
@@ -210,7 +233,7 @@
                 value="knn"
               />
               <label class="btn btn-outline-primary" for="model_knn">
-                🔍 K-Nearest Neighbors (KNN)
+                K-Nearest Neighbors
               </label>
             </div>
           </div>
@@ -729,7 +752,7 @@
           document.getElementById("val-Turbidity").innerText =
             document.getElementById("Turbidity").value + " NTU";
 
-          // Lấy mô hình đang được chọn từ 2 nút Radio
+          // Lấy mô hình đang được chọn từ 4 nút Radio
           const selectedModel = document.querySelector(
             'input[name="model_choice"]:checked',
           ).value;
@@ -778,9 +801,15 @@
             const modelUsedText = document.getElementById("modelUsedText");
 
             resultBox.style.display = "block";
+            const modelNames = {
+              lr: "Logistic Regression",
+              svm: "Support Vector Machine",
+              rf: "Random Forest",
+              knn: "K-Nearest Neighbors",
+            };
+
             modelUsedText.innerText =
-              data.model_used ||
-              (selectedModel === "rf" ? "Random Forest" : "KNN");
+              data.model_used || modelNames[selectedModel] || selectedModel;
 
             if (data.prediction === 1) {
               resultText.innerText = "Uống được (Potable)";

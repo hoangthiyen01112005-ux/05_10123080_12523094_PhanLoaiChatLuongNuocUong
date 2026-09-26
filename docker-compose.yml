@@ -11,7 +11,9 @@ services:
       - mongodb
 
   ai-service:
-    build: ./ai-models/service
+    build:
+      context: ./ai-models
+      dockerfile: service/Dockerfile
 
   frontend:
     build: ./app/frontend
