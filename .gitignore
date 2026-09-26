@@ -35,3 +35,4 @@ build/
 Thumbs.db
 
 ai-models/data/water_potability.csv
+ai-models/data/_tmp/
