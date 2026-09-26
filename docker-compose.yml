@@ -1,6 +1,35 @@
-services:
-  backend:
-    build: ./app/backend
+version: '3.8'
 
+services:
   ai-service:
-    build: ./ai-models/service
+    build:
+      context: .
+      dockerfile: ai-models/service/Dockerfile
+    container_name: water_ai_service
+    ports:
+      - "8000:8000"
+    restart: always
+
+  backend:
+    build:
+      context: ./app/backend
+      dockerfile: Dockerfile
+    container_name: water_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - AI_SERVICE_URL=http://ai-service:8000
+    depends_on:
+      - ai-service
+    restart: always
+
+  frontend:
+    build:
+      context: ./app/frontend
+      dockerfile: Dockerfile
+    container_name: water_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
