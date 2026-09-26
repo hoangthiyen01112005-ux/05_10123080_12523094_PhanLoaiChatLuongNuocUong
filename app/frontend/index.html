@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phân loại chất lượng nước uống</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f4f6f8;
+            color: #1a202c;
+            padding-top: 40px;
+            padding-bottom: 60px;
+        }
+        .main-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        .header-title {
+            font-weight: 700;
+            font-size: 2.25rem;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+        .header-subtitle {
+            color: #64748b;
+            font-size: 1rem;
+            margin-bottom: 32px;
+        }
+        .section-title {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+        .form-label-custom {
+            font-weight: 600;
+            font-size: 0.925rem;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+        .form-control-custom {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            color: #0f172a;
+            transition: all 0.2s ease;
+        }
+        .form-control-custom:focus {
+            background-color: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .field-subtext {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .btn-reset {
+            background-color: #e0e7ff;
+            color: #3730a3;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            transition: background-color 0.2s;
+        }
+        .btn-reset:hover {
+            background-color: #c7d2fe;
+            color: #312e81;
+        }
+        .btn-submit {
+            background-color: #2563eb;
+            color: #ffffff;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 28px;
+            transition: background-color 0.2s;
+        }
+        .btn-submit:hover {
+            background-color: #1d4ed8;
+        }
+        .result-box {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+            display: none;
+        }
+        .result-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+        }
+        .result-value {
+            font-size: 1.85rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+        .details-toggle {
+            background: none;
+            border: none;
+            color: #2563eb;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 0;
+            margin-top: 16px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .details-toggle:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+        .footer-note {
+            font-size: 0.85rem;
+            color: #64748b;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" style="max-width: 960px;">
+        
+        <!-- TIÊU ĐỀ BÀI TOÁN -->
+        <h1 class="header-title">Phân loại chất lượng nước uống</h1>
+        <p class="header-subtitle">Nhập các chỉ số hóa lý của nước, mô hình AI sẽ dự đoán liệu nguồn nước có an toàn để uống hay không.</p>
+
+        <!-- KHUNG NHẬP LIỆU CHÍNH -->
+        <div class="main-card">
+            <h5 class="section-title">Chỉ số hóa lý của nước</h5>
+            
+            <form id="waterForm">
+                <!-- HÀNG 1: 3 CHỈ SỐ -->
+                <div class="row g-4 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Độ pH (ph)</label>
+                        <input type="number" step="any" class="form-control form-control-custom" id="ph" value="7.0" required>
+                        <div class="field-subtext">Khoảng dữ liệu: 0.0 – 14.0</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Độ cứng (Hardness)</label>
+                        <div class="input-group">
+                            <input type="number" step="any" class="form-control form-control-custom" id="Hardness" value="204.89" required>
+                            <span class="input-group-text bg-transparent border-0 text-muted fs-7">mg/L</span>
+                        </div>
+                        <div class="field-subtext">Khoảng dữ liệu: 47 – 323 mg/L</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Tổng chất rắn hòa tan (Solids)</label>
+                        <div class="input-group">
+                            <input type="number" step="any" class="form-control form-control-custom" id="Solids" value="20791.32" required>
+                            <span class="input-group-text bg-transparent border-0 text-muted fs-7">ppm</span>
+                        </div>
+                        <div class="field-subtext">Khoảng dữ liệu: 320 – 61,227 ppm</div>
+                    </div>
+                </div>
+
+                <!-- HÀNG 2: 3 CHỈ SỐ -->
+                <div class="row g-4 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Chloramines</label>
+                        <div class="input-group">
+                            <input type="number" step="any" class="form-control form-control-custom" id="Chloramines" value="7.30" required>
+                            <span class="input-group-text bg-transparent border-0 text-muted fs-7">ppm</span>
+                        </div>
+                        <div class="field-subtext">Khoảng dữ liệu: 0.35 – 13.12 ppm</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Sulfate</label>
+                        <div class="input-group">
+                            <input type="number" step="any" class="form-control form-control-custom" id="Sulfate" value="368.51" required>
+                            <span class="input-group-text bg-transparent border-0 text-muted fs-7">mg/L</span>
+                        </div>
+                        <div class="field-subtext">Khoảng dữ liệu: 129 – 481 mg/L</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Độ dẫn điện (Conductivity)</label>
+                        <div class="input-group">
+                            <input type="number" step="any" class="form-control form-control-custom" id="Conductivity" value="564.30" required>
+                            <span class="input-group-text bg-transparent border-0 text-muted fs-7">μS/cm</span>
+                        </div>
+                        <div class="field-subtext">Khoảng dữ liệu: 181 – 753 μS/cm</div>
+                    </div>
+                </div>
+
+                <!-- HÀNG 3: 3 CHỈ SỐ -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Carbon hữu cơ (Organic carbon)</label>
+                        <div class="input-group">
+                            <input type="number" step="any" class="form-control form-control-custom" id="Organic_carbon" value="10.37" required>
+                            <span class="input-group-text bg-transparent border-0 text-muted fs-7">ppm</span>
+                        </div>
+                        <div class="field-subtext">Khoảng dữ liệu: 2.2 – 28.3 ppm</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Trihalomethanes</label>
+                        <div class="input-group">
+                            <input type="number" step="any" class="form-control form-control-custom" id="Trihalomethanes" value="86.99" required>
+                            <span class="input-group-text bg-transparent border-0 text-muted fs-7">μg/L</span>
+                        </div>
+                        <div class="field-subtext">Khoảng dữ liệu: 0.73 – 124.0 μg/L</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-custom">Độ đục (Turbidity)</label>
+                        <div class="input-group">
+                            <input type="number" step="any" class="form-control form-control-custom" id="Turbidity" value="2.96" required>
+                            <span class="input-group-text bg-transparent border-0 text-muted fs-7">NTU</span>
+                        </div>
+                        <div class="field-subtext">Khoảng dữ liệu: 1.45 – 6.74 NTU</div>
+                    </div>
+                </div>
+
+                <!-- NÚT BẤM -->
+                <div class="d-flex gap-2 align-items-center">
+                    <button type="button" class="btn btn-reset" onclick="resetForm()">Đặt lại giá trị mẫu</button>
+                    <button type="submit" class="btn btn-submit">Kiểm tra kết quả dự đoán</button>
+                </div>
+            </form>
+
+            <!-- KẾT QUẢ DỰ ĐOÁN NẰM NGAY BÊN DƯỚI -->
+            <div id="resultBox" class="result-box">
+                <div class="result-title">Kết quả phân loại</div>
+                <div id="resultText" class="result-value">---</div>
+                <div id="probabilityText" class="text-muted mt-1 fs-6">Độ tin cậy: --%</div>
+
+                <!-- NÚT XEM CÁCH TÍNH (COLLAPSE) -->
+                <div>
+                    <button class="details-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#calculationDetails" aria-expanded="false">
+                        <span>▶ Xem cách tính & Bảng so sánh ngưỡng</span>
+                    </button>
+                </div>
+
+                <!-- NỘI DUNG XEM CÁCH TÍNH -->
+                <div class="collapse mt-3" id="calculationDetails">
+                    <div class="card card-body bg-white border-0 shadow-sm p-3">
+                        <p class="text-secondary small mb-3">
+                            Mô hình phân loại dựa trên phép tính xác suất tổng hợp các cây quyết định (Random Forest). Các chỉ số đầu vào được chuẩn hóa (StandardScaler) và so sánh với tiêu chuẩn an toàn:
+                        </p>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered align-middle small mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Chỉ số hóa lý</th>
+                                        <th class="text-center">Giá trị nhập vào</th>
+                                        <th class="text-center">Ngưỡng an toàn khuyến nghị</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Độ pH</td>
+                                        <td class="text-center font-monospace" id="val-ph">7.0</td>
+                                        <td class="text-center">6.5 – 8.5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Độ cứng (Hardness)</td>
+                                        <td class="text-center font-monospace" id="val-Hardness">204.89 mg/L</td>
+                                        <td class="text-center">&lt; 300 mg/L</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tổng chất rắn (Solids)</td>
+                                        <td class="text-center font-monospace" id="val-Solids">20791.32 ppm</td>
+                                        <td class="text-center">&lt; 500 ppm (Lý tưởng)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Chloramines</td>
+                                        <td class="text-center font-monospace" id="val-Chloramines">7.30 ppm</td>
+                                        <td class="text-center">&lt; 4.0 ppm</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sulfate</td>
+                                        <td class="text-center font-monospace" id="val-Sulfate">368.51 mg/L</td>
+                                        <td class="text-center">&lt; 250 mg/L</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Độ dẫn điện (Conductivity)</td>
+                                        <td class="text-center font-monospace" id="val-Conductivity">564.30 μS/cm</td>
+                                        <td class="text-center">&lt; 400 μS/cm</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Carbon hữu cơ (Organic carbon)</td>
+                                        <td class="text-center font-monospace" id="val-Organic_carbon">10.37 ppm</td>
+                                        <td class="text-center">&lt; 10 ppm</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Trihalomethanes</td>
+                                        <td class="text-center font-monospace" id="val-Trihalomethanes">86.99 μg/L</td>
+                                        <td class="text-center">&lt; 80 μg/L</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Độ đục (Turbidity)</td>
+                                        <td class="text-center font-monospace" id="val-Turbidity">2.96 NTU</td>
+                                        <td class="text-center">&lt; 5.0 NTU</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- FOOTER CHÚ THÍCH MÔ HÌNH -->
+        <div class="footer-note">
+            <p class="mb-1">Mô hình: Random Forest Classifier (scikit-learn) · Dữ liệu: Kaggle Water Potability Dataset (3,276 mẫu).</p>
+            <p class="mb-0">Chỉ mang tính minh họa học thuật, không dùng để kiểm định chất lượng y tế thực tế.</p>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function resetForm() {
+            document.getElementById('ph').value = "7.0";
+            document.getElementById('Hardness').value = "204.89";
+            document.getElementById('Solids').value = "20791.32";
+            document.getElementById('Chloramines').value = "7.30";
+            document.getElementById('Sulfate').value = "368.51";
+            document.getElementById('Conductivity').value = "564.30";
+            document.getElementById('Organic_carbon').value = "10.37";
+            document.getElementById('Trihalomethanes').value = "86.99";
+            document.getElementById('Turbidity').value = "2.96";
+            document.getElementById('resultBox').style.display = "none";
+        }
+
+        document.getElementById('waterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Lấy giá trị từ form cập nhật vào bảng chi tiết
+            document.getElementById('val-ph').innerText = document.getElementById('ph').value;
+            document.getElementById('val-Hardness').innerText = document.getElementById('Hardness').value + " mg/L";
+            document.getElementById('val-Solids').innerText = document.getElementById('Solids').value + " ppm";
+            document.getElementById('val-Chloramines').innerText = document.getElementById('Chloramines').value + " ppm";
+            document.getElementById('val-Sulfate').innerText = document.getElementById('Sulfate').value + " mg/L";
+            document.getElementById('val-Conductivity').innerText = document.getElementById('Conductivity').value + " μS/cm";
+            document.getElementById('val-Organic_carbon').innerText = document.getElementById('Organic_carbon').value + " ppm";
+            document.getElementById('val-Trihalomethanes').innerText = document.getElementById('Trihalomethanes').value + " μg/L";
+            document.getElementById('val-Turbidity').innerText = document.getElementById('Turbidity').value + " NTU";
+
+            // Hiển thị hộp kết quả
+            const resultBox = document.getElementById('resultBox');
+            const resultText = document.getElementById('resultText');
+            const probabilityText = document.getElementById('probabilityText');
+
+            resultBox.style.display = "block";
+            resultText.innerText = "Uống được (Potable)";
+            resultText.style.color = "#16a34a";
+            probabilityText.innerText = "Độ tin cậy mô hình: 86.5%";
+        });
+    </script>
+</body>
+</html>

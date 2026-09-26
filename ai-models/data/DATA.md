@@ -25,7 +25,6 @@
 8. `Trihalomethanes`: Nồng độ Trihalomethanes
 9. `Turbidity`: Độ đục của nước
 
-
 ## 5. Chiến lược Tiền xử lý Dữ liệu (Data Preprocessing Strategy)
 
 ### 5.1. Xử lý giá trị thiếu (Missing Values)
@@ -54,3 +53,22 @@
 - **Mô hình được lưu chính thức:** Lưu tại `ai-models/models/model.joblib`.
 - **File Schema:** `ai-models/models/schema.json` định nghĩa chuẩn cấu trúc 9 đầu vào.
 - **File Metadata:** `ai-models/models/metadata.json` chứa các chỉ số Accuracy, Precision, Recall, F1-score của mô hình tốt nhất.
+
+## 7. Báo cáo Đánh giá Chi tiết (Detailed Model Evaluation)
+
+### 7.1. Các Biểu đồ Đánh giá
+Các hình ảnh trực quan hóa được lưu tại thư mục `docs/figures/`:
+- **Confusion Matrix:** `docs/figures/confusion_matrix.png` (Ma trận thể hiện tỷ lệ dự đoán đúng/sai trên tập test).
+- **ROC Curve:** `docs/figures/roc_curve.png` (Đánh giá khả năng phân loại của mô hình qua chỉ số AUC).
+- **Feature Importance:** `docs/figures/feature_importance.png` (Đánh giá mức độ đóng góp của từng chỉ số chất lượng nước tới kết quả phân loại).
+
+### 7.2. Tóm tắt Đánh giá
+- Mô hình chính thức được kiểm thử độc lập trên tập Test (20% dữ liệu ban đầu).
+- Các chỉ số được trích xuất tự động và đồng bộ trực tiếp vào `ai-models/models/metadata.json`.
+
+## 8. Đóng gói Modules Python (Source Code)
+Các xử lý cốt lõi đã được module hóa tại thư mục `ai-models/src/`:
+- `preprocess.py`: Hàm tạo Pipeline tiền xử lý và phân chia dữ liệu.
+- `train.py`: Hàm huấn luyện và lưu mô hình `model.joblib`.
+- `evaluate.py`: Hàm tính toán các chỉ số đo lường hiệu năng.
+- Các thư viện phụ thuộc được ghim tại `ai-models/requirements.txt`.
