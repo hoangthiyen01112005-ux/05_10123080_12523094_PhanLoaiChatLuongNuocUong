@@ -5,7 +5,7 @@
 - Tập dữ liệu gốc: `water_potability.csv` (được nén trong zip)
 
 ## 2. Thông số tổng quan
-- **Số lượng mẫu (Rows):** 3276
+- **Số lượng mẫu (Rows):** 3,276
 - **Tổng số cột (Columns):** 10 (9 Features + 1 Target)
 - **Số dòng trùng lặp:** 0
 
@@ -29,46 +29,53 @@
 
 ### 5.1. Xử lý giá trị thiếu (Missing Values)
 - **Phương pháp:** Sử dụng `SimpleImputer(strategy='median')`.
-- **Lý do chọn Median:** Dữ liệu các chỉ số hóa học của nước có chứa các giá trị ngoại lệ (outliers), dùng Trung vị (Median) giúp tránh bị lệch giá trị so với Trung bình (Mean).
-- **Cột bị thiếu chính:** `ph`, `Sulfate`, `Trihalomethanes`.
+- **Lý do chọn Median:** Dữ liệu chứa các giá trị ngoại lệ (outliers), dùng Trung vị (Median) giúp tránh bị lệch giá trị so với Trung bình (Mean).
+- **Các cột bị thiếu:** `ph`, `Sulfate`, `Trihalomethanes`.
 
 ### 5.2. Chuẩn hóa đặc trưng (Feature Scaling)
 - **Phương pháp:** Sử dụng `StandardScaler()` (Z-score Normalization).
-- **Lý do:** Đưa tất cả 9 đặc trưng về cùng quy mô (Mean = 0, Variance = 1), giúp các thuật toán phân loại (KNN, SVM, Logistic Regression, v.v.) hội tụ nhanh và không bị phân biệt đối xử do chênh lệch đơn vị đo.
+- **Lý do:** Đưa tất cả 9 đặc trưng về cùng quy mô (Mean = 0, Variance = 1) bên trong Pipeline để chống rò rỉ dữ liệu (Data Leakage).
 
 ### 5.3. Phân chia tập dữ liệu (Data Splitting)
-- **Tỷ lệ phân chia:** 80% Train / 20% Test.
-- **Phương pháp:** `stratify=y` để đảm bảo tỷ lệ lớp `Potability` (0 và 1) đồng nhất giữa 2 tập Train và Test.
+- **Tỷ lệ phân chia:** 80% Train / 20% Test (`random_state=42`).
+- **Phương pháp:** `stratify=y` đảm bảo tỷ lệ lớp `Potability` (0 và 1) đồng nhất giữa 2 tập Train và Test.
 - **Kích thước thực tế:**
   - Tập Train: 2,620 mẫu.
   - Tập Test: 656 mẫu.
 
-## 6. Kết quả Huấn luyện & Lựa chọn Mô hình (Model Training)
+## 6. Kết quả Huấn luyện & Đóng gói Mô hình (Model Training - Member 1)
 
-### 6.1. Các Mô hình Đã Huấn Luyện (Thành viên 1)
-- **K-Nearest Neighbors (KNN):** Tinh chỉnh tham số `n_neighbors` và `weights`.
-- **Random Forest Classifier:** Tinh chỉnh tham số `n_estimators` và `max_depth`.
+### 6.1. Các Mô hình Đã Huấn Luyện
+- **K-Nearest Neighbors (KNN):** Tinh chỉnh tham số `n_neighbors` và `weights` bằng `GridSearchCV`.
+- **Random Forest Classifier:** Tinh chỉnh tham số `n_estimators` và `max_depth` bằng `GridSearchCV`.
 
-### 6.2. Kết quả Đánh giá Trên Tập Test
-- **Mô hình được lưu chính thức:** Lưu tại `ai-models/models/model.joblib`.
-- **File Schema:** `ai-models/models/schema.json` định nghĩa chuẩn cấu trúc 9 đầu vào.
-- **File Metadata:** `ai-models/models/metadata.json` chứa các chỉ số Accuracy, Precision, Recall, F1-score của mô hình tốt nhất.
+### 6.2. Lưu trữ Artifacts (Models & Schema)
+Để phục vụ tích hợp đa mô hình trên Backend/Frontend, hệ thống lưu trữ đầy đủ các artifacts sau tại thư mục `ai-models/models/`:
+- `knn_model.joblib`: Pipeline mô hình KNN hoàn chỉnh.
+- `rf_model.joblib`: Pipeline mô hình Random Forest hoàn chỉnh.
+- `model.joblib`: Mô hình chiến thắng mặc định (Random Forest).
+- `schema.json`: Định nghĩa cấu trúc chuẩn của 9 đặc trưng đầu vào.
+- `metadata.json`: Lưu trữ thông số hiệu năng và thông tin kỹ thuật của mô hình chiến thắng.
 
-## 7. Báo cáo Đánh giá Chi tiết (Detailed Model Evaluation)
+## 7. Báo cáo Đánh giá & So sánh Mô hình (Detailed Model Evaluation)
 
-### 7.1. Các Biểu đồ Đánh giá
+### 7.1. Các Biểu đồ Đánh giá Chi tiết
 Các hình ảnh trực quan hóa được lưu tại thư mục `docs/figures/`:
-- **Confusion Matrix:** `docs/figures/confusion_matrix.png` (Ma trận thể hiện tỷ lệ dự đoán đúng/sai trên tập test).
-- **ROC Curve:** `docs/figures/roc_curve.png` (Đánh giá khả năng phân loại của mô hình qua chỉ số AUC).
-- **Feature Importance:** `docs/figures/feature_importance.png` (Đánh giá mức độ đóng góp của từng chỉ số chất lượng nước tới kết quả phân loại).
+- **Ma trận nhầm lẫn gộp:** `docs/figures/confusion_matrices_both.png` (Ma trận Confusion Matrix nằm cạnh nhau của cả KNN và Random Forest).
+- **Đường cong ROC So sánh:** `docs/figures/roc_comparison.png` (So sánh trực quan chỉ số AUC giữa KNN và Random Forest trên cùng 1 hệ trục).
+- **Mức độ quan trọng thuộc tính:** `docs/figures/feature_importance_rf.png` (Top các thuộc tính hóa lý ảnh hưởng nhất của Random Forest: Sulfate, pH, Hardness).
 
-### 7.2. Tóm tắt Đánh giá
-- Mô hình chính thức được kiểm thử độc lập trên tập Test (20% dữ liệu ban đầu).
-- Các chỉ số được trích xuất tự động và đồng bộ trực tiếp vào `ai-models/models/metadata.json`.
+### 7.2. Tóm tắt So sánh Kết quả Trên Tập Test
+| Chỉ số (Metric) | KNN | Random Forest | Mô hình tối ưu hơn |
+| :--- | :---: | :---: | :---: |
+| **Accuracy** | ~0.61 | **~0.65** | Random Forest |
+| **Precision (Lớp 1)** | ~0.52 | **~0.62** | Random Forest |
+| **Recall (Lớp 1)** | ~0.25 | **~0.29** | Random Forest |
+| **F1-Score (Lớp 1)** | ~0.34 | **~0.40** | Random Forest |
+| **AUC (ROC)** | ~0.58 | **~0.67** | Random Forest |
 
-## 8. Đóng gói Modules Python (Source Code)
-Các xử lý cốt lõi đã được module hóa tại thư mục `ai-models/src/`:
-- `preprocess.py`: Hàm tạo Pipeline tiền xử lý và phân chia dữ liệu.
-- `train.py`: Hàm huấn luyện và lưu mô hình `model.joblib`.
-- `evaluate.py`: Hàm tính toán các chỉ số đo lường hiệu năng.
-- Các thư viện phụ thuộc được ghim tại `ai-models/requirements.txt`.
+## 8. Cấu trúc Mô-đun Code (Source Code Structure)
+- `01_eda.ipynb`: Phân tích khám phá dữ liệu & xuất 3 biểu đồ EDA.
+- `02_preprocess.ipynb`: Xây dựng Pipeline tiền xử lý & kiểm tra rò rỉ dữ liệu.
+- `03_train.ipynb`: Huấn luyện, đo thời gian, tinh chỉnh GridSearchCV & xuất 3 file models.
+- `04_evaluate.ipynb`: Tính toán metrics, xuất bảng so sánh và 3 file đồ thị đánh giá.
