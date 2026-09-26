@@ -642,8 +642,10 @@
         <h5 class="section-title mb-1">
           📊 Bảng So sánh Hiệu năng giữa Các Mô hình
         </h5>
+
         <p class="text-muted small mb-3">
-          Kết quả đánh giá trên tập dữ liệu Test (656 mẫu kiểm thử độc lập):
+          Kết quả đánh giá trên tập Test gồm 656 mẫu, sử dụng cùng cách chia dữ
+          liệu: test_size = 0.2, random_state = 42, stratify = y.
         </p>
 
         <div class="table-responsive">
@@ -653,46 +655,82 @@
             <thead class="table-light">
               <tr>
                 <th class="text-start">Mô hình AI</th>
-                <th>Accuracy (Độ chính xác)</th>
-                <th>Precision (Lớp 1)</th>
-                <th>Recall (Lớp 1)</th>
+                <th>Accuracy</th>
+                <th>Precision</th>
+                <th>Recall</th>
                 <th>F1-Score</th>
-                <th>AUC (ROC)</th>
-                <th>Đánh giá</th>
+                <th>ROC-AUC</th>
+                <th>PR-AUC</th>
+                <th>Ghi chú</th>
               </tr>
             </thead>
+
             <tbody>
+              <tr>
+                <td class="text-start">Logistic Regression</td>
+                <td>53.05%</td>
+                <td>42.17%</td>
+                <td><strong>54.69%</strong></td>
+                <td>0.4762</td>
+                <td>0.5488</td>
+                <td>0.4864</td>
+                <td>
+                  <span class="badge bg-secondary"> Recall cao nhất </span>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="text-start">Support Vector Machine (SVM)</td>
+                <td>62.20%</td>
+                <td>51.59%</td>
+                <td>50.78%</td>
+                <td><strong>0.5118</strong></td>
+                <td>0.6440</td>
+                <td>0.5662</td>
+                <td>
+                  <span class="badge bg-secondary"> F1 cao nhất </span>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="text-start">K-Nearest Neighbors (KNN)</td>
+                <td>61.13%</td>
+                <td>50.39%</td>
+                <td>25.39%</td>
+                <td>0.3377</td>
+                <td>0.6021</td>
+                <td>0.4825</td>
+                <td>
+                  <span class="badge bg-secondary"> Mô hình so sánh </span>
+                </td>
+              </tr>
+
               <tr class="table-success fw-medium">
                 <td class="text-start">
-                  🌲 <strong>Random Forest Classifier</strong>
-                  <span class="badge-recommended">Tối ưu nhất</span>
+                  <strong>Random Forest</strong>
+                  <span class="badge-recommended"> Mô hình chính </span>
                 </td>
-                <td><strong>65.2%</strong></td>
-                <td><strong>62.4%</strong></td>
-                <td><strong>29.1%</strong></td>
-                <td><strong>0.40</strong></td>
-                <td><strong>0.67</strong></td>
-                <td><span class="badge bg-success">Tốt nhất</span></td>
-              </tr>
-              <tr>
-                <td class="text-start">🔍 K-Nearest Neighbors (KNN)</td>
-                <td>61.0%</td>
-                <td>52.1%</td>
-                <td>25.3%</td>
-                <td>0.34</td>
-                <td>0.58</td>
-                <td><span class="badge bg-secondary">Trung bình</span></td>
+                <td><strong>65.40%</strong></td>
+                <td><strong>61.98%</strong></td>
+                <td>29.30%</td>
+                <td>0.3979</td>
+                <td><strong>0.6652</strong></td>
+                <td><strong>0.6000</strong></td>
+                <td>
+                  <span class="badge bg-success"> Final model </span>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <div class="alert alert-light border mt-3 mb-0 text-muted small">
-          💡 <strong>Nhận xét chuyên môn:</strong> Mô hình
-          <strong>Random Forest</strong> đạt các chỉ số vượt trội hơn KNN ở mọi
-          tiêu chí, đặc biệt là diện tích dưới đường cong ROC (AUC = 0.67 so với
-          0.58). Do đó, Random Forest được lựa chọn làm mô hình dự đoán chính
-          cho hệ thống.
+          💡 <strong>Nhận xét:</strong>
+          Random Forest được lựa chọn làm mô hình chính của hệ thống với
+          Accuracy = 65.40%, Precision = 61.98%, ROC-AUC = 0.6652 và PR-AUC =
+          0.6000. Tuy nhiên, Logistic Regression đạt Recall cao nhất (54.69%) và
+          SVM đạt F1-Score cao nhất (0.5118), vì vậy không có một mô hình vượt
+          trội ở mọi chỉ số đánh giá.
         </div>
       </div>
 
