@@ -263,3 +263,67 @@ def test_predict_and_save_history(monkeypatch):
     assert "model_type" not in captured_history["features"]
     assert captured_history["features"]["ph"] == 7.0
 
+def test_model_info_proxy(monkeypatch):
+    captured_request = {}
+
+    class FakeResponse:
+        status_code = 200
+
+        def json(self):
+            return {
+                "status": "ok",
+                "request_id": "model-info-test-123",
+                "model": {
+                    "name": "test-model",
+                    "version": "1.0.0",
+                },
+            }
+
+    class FakeAsyncClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc_val, exc_tb):
+            pass
+
+        async def get(self, url, headers=None):
+            captured_request["url"] = url
+            captured_request["headers"] = headers
+
+            return FakeResponse()
+
+    monkeypatch.setattr(
+        main.httpx,
+        "AsyncClient",
+        FakeAsyncClient,
+    )
+
+    response = client.get(
+        "/api/model-info",
+        headers={
+            "X-Request-ID": "model-info-test-123",
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["status"] == "ok"
+    assert data["request_id"] == "model-info-test-123"
+    assert data["model"]["name"] == "test-model"
+    assert data["model"]["version"] == "1.0.0"
+
+    assert captured_request["url"] == (
+        f"{main.AI_SERVICE_URL}/model-info"
+    )
+
+    assert (
+        captured_request["headers"]["X-Request-ID"]
+        == "model-info-test-123"
+    )
+
+    assert response.headers["X-Request-ID"] == "model-info-test-123"

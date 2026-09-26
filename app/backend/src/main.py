@@ -212,6 +212,32 @@ async def predict_water_potability(data: WaterInput, request: Request):
             detail=f"Không thể kết nối đến AI Service: {exc}",
         )
 
+@app.get("/api/model-info")
+async def get_model_info(request: Request):
+    request_id = request.state.request_id
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(
+                f"{AI_SERVICE_URL}/model-info",
+                headers={
+                    "X-Request-ID": request_id
+                },
+            )
+
+        data = response.json()
+
+        return JSONResponse(
+            status_code=response.status_code,
+            content=data,
+        )
+
+    except httpx.RequestError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Không thể kết nối đến AI Service: {exc}",
+        )
+
 @app.get("/api/history")
 def history(
     request: Request,
