@@ -575,6 +575,45 @@
         </div>
       </div>
 
+      <!-- THÔNG TIN MÔ HÌNH -->
+      <div class="main-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 class="section-title mb-1">Thông tin mô hình</h5>
+            <p class="text-muted small mb-0">
+              Metadata của mô hình đang được sử dụng bởi AI Service.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-primary"
+            onclick="loadModelInfo()"
+          >
+            Làm mới
+          </button>
+        </div>
+
+        <div id="modelInfoLoading" class="text-muted small">
+          Đang tải thông tin mô hình...
+        </div>
+
+        <div
+          id="modelInfoUnavailable"
+          class="text-muted text-center py-4 d-none"
+        >
+          Chưa có thông tin model.
+        </div>
+
+        <div id="modelInfoError" class="alert alert-danger d-none"></div>
+
+        <div id="modelInfoContent" class="table-responsive d-none">
+          <table class="table table-bordered align-middle small mb-0">
+            <tbody id="modelInfoTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- KHUNG SO SÁNH CÁC MÔ HÌNH AI -->
       <div class="main-card">
         <h5 class="section-title mb-1">
@@ -832,7 +871,67 @@
         }
       }
 
+      async function loadModelInfo() {
+        const loading = document.getElementById("modelInfoLoading");
+        const unavailable = document.getElementById("modelInfoUnavailable");
+        const errorBox = document.getElementById("modelInfoError");
+        const content = document.getElementById("modelInfoContent");
+        const tableBody = document.getElementById("modelInfoTableBody");
+
+        loading.classList.remove("d-none");
+        unavailable.classList.add("d-none");
+        errorBox.classList.add("d-none");
+        content.classList.add("d-none");
+        tableBody.innerHTML = "";
+
+        try {
+          const response = await fetch("/api/model-info");
+
+          if (response.status === 503) {
+            loading.classList.add("d-none");
+            unavailable.classList.remove("d-none");
+            return;
+          }
+
+          if (!response.ok) {
+            throw new Error("Không thể tải thông tin mô hình.");
+          }
+
+          const result = await response.json();
+          const model = result.model;
+
+          loading.classList.add("d-none");
+
+          if (!model || Object.keys(model).length === 0) {
+            unavailable.classList.remove("d-none");
+            return;
+          }
+
+          Object.entries(model).forEach(([key, value]) => {
+            const row = document.createElement("tr");
+
+            const displayValue =
+              typeof value === "object" && value !== null
+                ? JSON.stringify(value)
+                : value;
+
+            row.innerHTML = `
+        <th style="width: 35%">${key}</th>
+        <td>${displayValue ?? "---"}</td>
+      `;
+
+            tableBody.appendChild(row);
+          });
+
+          content.classList.remove("d-none");
+        } catch (error) {
+          loading.classList.add("d-none");
+          errorBox.textContent = error.message;
+          errorBox.classList.remove("d-none");
+        }
+      }
       loadHistory();
+      loadModelInfo();
     </script>
   </body>
 </html>
