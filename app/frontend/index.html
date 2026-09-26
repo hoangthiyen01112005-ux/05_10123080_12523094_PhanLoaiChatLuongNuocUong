@@ -974,26 +974,132 @@
             return;
           }
 
-          Object.entries(model).forEach(([key, value]) => {
+          // Hàm thêm một dòng vào bảng thông tin
+          function addRow(label, value) {
             const row = document.createElement("tr");
 
-            const displayValue =
-              typeof value === "object" && value !== null
-                ? JSON.stringify(value)
-                : value;
+            const th = document.createElement("th");
+            th.style.width = "30%";
+            th.style.verticalAlign = "top";
+            th.textContent = label;
 
-            row.innerHTML = `
-        <th style="width: 35%">${key}</th>
-        <td>${displayValue ?? "---"}</td>
-      `;
+            const td = document.createElement("td");
+            td.style.whiteSpace = "normal";
+            td.style.wordBreak = "break-word";
+
+            if (value instanceof Node) {
+              td.appendChild(value);
+            } else {
+              td.textContent = value ?? "---";
+            }
+
+            row.appendChild(th);
+            row.appendChild(td);
 
             tableBody.appendChild(row);
-          });
+          }
+
+          // =========================
+          // THÔNG TIN CHUNG
+          // =========================
+
+          addRow("Project", model.project);
+          addRow("Version", model.version);
+
+          if (model.final_model) {
+            addRow("Final model", model.final_model.name);
+            addRow("Model ID", model.final_model.id);
+            addRow("Artifact", model.final_model.artifact);
+          }
+
+          // =========================
+          // DATASET
+          // =========================
+
+          if (model.dataset) {
+            addRow("Dataset", model.dataset.name);
+            addRow("Target", model.dataset.target);
+
+            if (model.dataset.test_size !== undefined) {
+              addRow(
+                "Test size",
+                `${(model.dataset.test_size * 100).toFixed(0)}%`,
+              );
+            }
+
+            addRow("Random state", model.dataset.random_state);
+
+            addRow("Stratify", model.dataset.stratify ? "Có" : "Không");
+          }
+
+          // =========================
+          // FEATURES
+          // =========================
+
+          if (Array.isArray(model.features)) {
+            const featureContainer = document.createElement("div");
+
+            featureContainer.className = "d-flex flex-wrap gap-2";
+
+            model.features.forEach((feature) => {
+              const badge = document.createElement("span");
+
+              badge.className = "badge text-bg-light border text-dark";
+
+              badge.textContent = feature;
+
+              featureContainer.appendChild(badge);
+            });
+
+            addRow("Features", featureContainer);
+          }
+
+          // =========================
+          // THÔNG TIN 4 MODEL
+          // =========================
+
+          if (model.models) {
+            const modelsContainer = document.createElement("div");
+
+            Object.entries(model.models).forEach(([modelId, modelData]) => {
+              const modelBlock = document.createElement("div");
+
+              modelBlock.className = "border rounded p-3 mb-2 bg-light";
+
+              const title = document.createElement("div");
+
+              title.className = "fw-bold mb-2";
+
+              title.textContent = modelData.name || modelId;
+
+              const metrics = document.createElement("div");
+
+              metrics.className = "small text-muted lh-lg";
+
+              metrics.innerHTML = `
+            Accuracy: <strong>${(modelData.accuracy * 100).toFixed(2)}%</strong><br>
+            Precision: ${modelData.precision.toFixed(4)} |
+            Recall: ${modelData.recall.toFixed(4)} |
+            F1: ${modelData.f1.toFixed(4)}<br>
+            ROC-AUC: ${modelData.roc_auc.toFixed(4)} |
+            PR-AUC: ${modelData.pr_auc.toFixed(4)}
+          `;
+
+              modelBlock.appendChild(title);
+              modelBlock.appendChild(metrics);
+
+              modelsContainer.appendChild(modelBlock);
+            });
+
+            addRow("Models", modelsContainer);
+          }
 
           content.classList.remove("d-none");
         } catch (error) {
           loading.classList.add("d-none");
+
           errorBox.textContent = error.message;
+
           errorBox.classList.remove("d-none");
         }
       }
