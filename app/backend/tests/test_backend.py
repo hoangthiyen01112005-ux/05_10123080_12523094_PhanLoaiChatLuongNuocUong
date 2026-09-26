@@ -155,4 +155,111 @@ def test_cors_preflight():
     assert "access-control-allow-origin" in response.headers
     assert "access-control-allow-methods" in response.headers
 
+def test_predict_and_save_history(monkeypatch):
+    captured_ai_request = {}
+    captured_history = {}
+
+    class FakeResponse:
+        status_code = 200
+
+        def json(self):
+            return {
+                "prediction": 1,
+                "label": "Uống được (Potable)",
+                "probability": 0.85,
+                "model_used": "Random Forest",
+            }
+
+    class FakeAsyncClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc_val, exc_tb):
+            pass
+
+        async def post(self, url, json=None, headers=None):
+            captured_ai_request["url"] = url
+            captured_ai_request["json"] = json
+            captured_ai_request["headers"] = headers
+
+            return FakeResponse()
+
+    def fake_save_prediction_history(
+        request_id,
+        features,
+        prediction,
+        probability=None,
+        model_version=None,
+    ):
+        captured_history["request_id"] = request_id
+        captured_history["features"] = features
+        captured_history["prediction"] = prediction
+        captured_history["probability"] = probability
+        captured_history["model_version"] = model_version
+
+        return "fake-history-id"
+
+    monkeypatch.setattr(
+        main.httpx,
+        "AsyncClient",
+        FakeAsyncClient,
+    )
+
+    monkeypatch.setattr(
+        main,
+        "save_prediction_history",
+        fake_save_prediction_history,
+    )
+
+    payload = {
+        "ph": 7.0,
+        "Hardness": 204.89,
+        "Solids": 20791.32,
+        "Chloramines": 7.30,
+        "Sulfate": 368.51,
+        "Conductivity": 564.30,
+        "Organic_carbon": 10.37,
+        "Trihalomethanes": 86.99,
+        "Turbidity": 2.96,
+        "model_type": "rf",
+    }
+
+    response = client.post(
+        "/api/predict",
+        json=payload,
+        headers={
+            "X-Request-ID": "predict-test-123",
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["prediction"] == 1
+    assert data["probability"] == 0.85
+    assert data["model_used"] == "Random Forest"
+    assert data["request_id"] == "predict-test-123"
+
+    assert captured_ai_request["url"] == (
+        f"{main.AI_SERVICE_URL}/predict"
+    )
+
+    assert (
+        captured_ai_request["headers"]["X-Request-ID"]
+        == "predict-test-123"
+    )
+
+    assert captured_ai_request["json"]["model_type"] == "rf"
+
+    assert captured_history["request_id"] == "predict-test-123"
+    assert captured_history["prediction"] == 1
+    assert captured_history["probability"] == 0.85
+    assert captured_history["model_version"] is None
+
+    assert "model_type" not in captured_history["features"]
+    assert captured_history["features"]["ph"] == 7.0
 

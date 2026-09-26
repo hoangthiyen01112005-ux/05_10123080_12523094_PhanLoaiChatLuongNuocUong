@@ -12,8 +12,7 @@ from pymongo.errors import PyMongoError
 from typing import Optional
 
 from database import check_database_connection
-from history import get_prediction_history
-
+from history import get_prediction_history, save_prediction_history
 
 logging.basicConfig(
     level=logging.INFO,
@@ -46,6 +45,17 @@ AI_SERVICE_URL = os.getenv(
     "http://ai-service:8000",
 )
 
+class WaterInput(BaseModel):
+    ph: float
+    Hardness: float
+    Solids: float
+    Chloramines: float
+    Sulfate: float
+    Conductivity: float
+    Organic_carbon: float
+    Trihalomethanes: float
+    Turbidity: float
+    model_type: Optional[str] = "rf"
 
 @app.middleware("http")
 async def request_id_middleware(request: Request, call_next):
@@ -157,6 +167,50 @@ def health(request: Request):
         "request_id": request.state.request_id,
     }
 
+@app.post("/api/predict")
+async def predict_water_potability(data: WaterInput, request: Request):
+    request_id = request.state.request_id
+
+    try:
+        payload = data.model_dump()
+
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.post(
+                f"{AI_SERVICE_URL}/predict",
+                json=payload,
+                headers={
+                    "X-Request-ID": request_id
+                },
+            )
+
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=response.status_code,
+                detail="Lỗi phản hồi từ AI Service",
+            )
+
+        prediction_result = response.json()
+
+        features = payload.copy()
+        features.pop("model_type", None)
+
+        save_prediction_history(
+            request_id=request_id,
+            features=features,
+            prediction=prediction_result["prediction"],
+            probability=prediction_result.get("probability"),
+            model_version=prediction_result.get("model_version"),
+        )
+
+        prediction_result["request_id"] = request_id
+
+        return prediction_result
+
+    except httpx.RequestError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Không thể kết nối đến AI Service: {exc}",
+        )
 
 @app.get("/api/history")
 def history(
