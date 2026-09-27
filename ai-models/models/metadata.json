@@ -1,0 +1,65 @@
+{
+  "project": "Water Potability Classification",
+  "version": "1.0.0",
+  "final_model": {
+    "id": "rf",
+    "name": "Random Forest",
+    "artifact": "rf_model.joblib"
+  },
+  "dataset": {
+    "name": "Water Potability Dataset",
+    "target": "Potability",
+    "test_size": 0.2,
+    "random_state": 42,
+    "stratify": true
+  },
+  "features": [
+    "ph",
+    "Hardness",
+    "Solids",
+    "Chloramines",
+    "Sulfate",
+    "Conductivity",
+    "Organic_carbon",
+    "Trihalomethanes",
+    "Turbidity"
+  ],
+  "models": {
+    "lr": {
+      "name": "Logistic Regression",
+      "accuracy": 0.5305,
+      "precision": 0.4217,
+      "recall": 0.5469,
+      "f1": 0.4762,
+      "roc_auc": 0.5488,
+      "pr_auc": 0.4864
+    },
+    "svm": {
+      "name": "Support Vector Machine",
+      "accuracy": 0.622,
+      "precision": 0.5159,
+      "recall": 0.5078,
+      "f1": 0.5118,
+      "roc_auc": 0.644,
+      "pr_auc": 0.5662
+    },
+    "knn": {
+      "name": "K-Nearest Neighbors",
+      "accuracy": 0.6113,
+      "precision": 0.5039,
+      "recall": 0.2539,
+      "f1": 0.3377,
+      "roc_auc": 0.6021,
+      "pr_auc": 0.4825
+    },
+    "rf": {
+      "name": "Random Forest",
+      "accuracy": 0.654,
+      "precision": 0.6198,
+      "recall": 0.293,
+      "f1": 0.3979,
+      "roc_auc": 0.6652,
+      "pr_auc": 0.6
+    }
+  }
+}
