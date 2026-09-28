@@ -87,19 +87,19 @@ POST http://localhost:8080/api/predict
 - Công cụ: Python + httpx
 - File kiểm thử: load_test.py
 
-  ### Kết quả thực tế
+### Kết quả thực tế
 
-  | Chỉ số              |     Kết quả |
-  | ------------------- | ----------: |
-  | Concurrent users    |          10 |
-  | Actual duration     |  60.46 giây |
-  | Total requests      |         776 |
-  | Successful requests |         776 |
-  | Failed requests     |           0 |
-  | Requests/second     | 12.84 req/s |
-  | P50 latency         |   737.95 ms |
-  | P95 latency         |  1128.86 ms |
-  | Error rate          |       0.00% |
+| Chỉ số              |     Kết quả |
+| ------------------- | ----------: |
+| Concurrent users    |          10 |
+| Actual duration     |  60.24 giây |
+| Total requests      |         929 |
+| Successful requests |         929 |
+| Failed requests     |           0 |
+| Requests/second     | 15.42 req/s |
+| P50 latency         |   620.65 ms |
+| P95 latency         |   861.78 ms |
+| Error rate          |       0.00% |
 
 ### Nhận xét
 
